@@ -24,30 +24,52 @@ browserPromise.then(function(browserinstance){
 }).then(function(){
     let passwordWillBeTypedPromise=gtab.type("#input-2" , password, {delay:200});
     return passwordWillBeTypedPromise;
-}).then(function(){
-    let loginPageWillBeClickedPromise=gtab.click("button[data-analytics='LoginPassword']");
-
-    // we have to wait for both the promises until the page is loaded
-    let combinePromises=Promise.all([loginPageWillBeClickedPromise,
-        gtab.waitForNavigation({waitUntil:"networkidle0"})]);   
-    return combinePromises;
-}).then(function(){
+})
+// login
+.then(function(){
+    let loginPageClick=waitAndClick("button[data-analytics='LoginPassword']");
+     // we have to wait for both the promises until the page is loaded
+     
+     // Now we have to wait for the UI to show on the Screen - Sometimes it is shown late in screen when the network is little slow.
+    return loginPageClick;
+})
+// Preparation Kit
+.then(function(){
     // let preparationKitWillBeClickedPromise=gtab.click("a[id='base-card-1-link']");
     // The upper line of code will show error becoz this then is waiting for the click . when login btn jis clicked 
     // the upper line will be run and it will show the element not found error 
     // we also have to wait for page changing
-    let preparationKitWillBeClickedPromise=gtab.click("a[id='base-card-1-link']");
-    let preparationKitCombinedPromises=Promise.all([preparationKitWillBeClickedPromise
-        ,gtab.waitForNavigation({waitUntil:"networkidle0"})]);
-    return preparationKitCombinedPromises;
+    let preparationKitClick=waitAndClick("a[id='base-card-1-link']");
+    return preparationKitClick;
     
-}).then(function(){
-    let warmupWillBeClickedPromise=gtab.click(".ui-card.ui-layer-3.active-card");
-    let warmupClickedCombinedPromise=Promise.all([warmupWillBeClickedPromise ,
-        gtab.waitForNavigation({waitUntil:"networkidle0"})]);
-        return warmupClickedCombinedPromise;
-}).then(function(){
+}) // warm Up Challenge
+.then(function(){
+    let warmupClick=waitAndClick("a[data-attr1='warmup']");
+    return warmupClick;
+
+}) // Reach to the Question
+.then(function(){
+    let questionClick=waitAndClick(".ui-btn.ui-btn-normal.primary-cta.ui-btn-primary.ui-btn-styled");
+    return questionClick;
 
 }).catch(function(err){
     console.log("Error AAYA Re :- ",err);
 })
+
+
+// function that is waiting for selector and applying the click on that selector
+function waitAndClick(selector){
+    return new Promise(function(resolve,reject){
+        let selectorWaitPromises=gtab.waitForSelector(selector);
+        selectorWaitPromises.then(function(){
+            let clickPromise=gtab.click(selector);
+            return clickPromise;
+        })
+        selectorWaitPromises.then(function(){
+            resolve();
+        })
+        selectorWaitPromises.then(function(){
+            reject();
+        })
+    })
+}
