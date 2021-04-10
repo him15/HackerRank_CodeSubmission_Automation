@@ -28,12 +28,10 @@ browserPromise.then(function(browserinstance){
     return passwordWillBeTypedPromise;
 })
 // login
-.then(function(){
-    let loginPageClick=waitAndClick("button[data-analytics='LoginPassword']");
-     // we have to wait for both the promises until the page is loaded
-     
-     // Now we have to wait for the UI to show on the Screen - Sometimes it is shown late in screen when the network is little slow.
-    return loginPageClick;
+.then(function () {
+    let loginPageWillBeClickedpromise = gtab.
+        click("button[data-analytics='LoginPassword']");
+    return loginPageWillBeClickedpromise;
 })
 // Preparation Kit
 .then(function(){
@@ -44,45 +42,79 @@ browserPromise.then(function(browserinstance){
     let preparationKitClick=waitAndClick("a[id='base-card-1-link']");
     return preparationKitClick;
     
-}) // warm Up Challenge
-.then(function(){
+}).then(function(){
+    console.log(gtab.url());
     let warmupClick=waitAndClick("a[data-attr1='warmup']");
     return warmupClick;
-
-}) // find the url of the page
-.then(function(){
-    return gtab.url();
+    
+}).then(function(){
+    console.log(gtab.url());
+    return gtab.url(); // return url of the current page
 
 }).then(function(url){
-
+    console.log(url);
+    let questionObj=codes[0];
+    questionSolver(url , questionObj.soln , questionObj.qName );
 })
 
 .catch(function(err){
-    console.log("Error AAYA Re :- ",err);
+    console.log(err);
 })
 
 
 
-
+// it is the function which take the code and question name then it solve that particular question
 function questionSolver(modulePageUrl , code , questionName){
     return new Promise(function (resolve , reject ){
+        //--------logic-----
+            // visit the page
+            let reachedPageUrlPromise = gtab.goto(modulePageUrl);
+            
+            reachedPageUrlPromise.then(function(){
+                // question name -> appear -> visit
+            // page h4 -> matching h4 -> click
+            function browserConsoleRunFn(questionName){ // this function will run on the browser console with the help of Evaluate method
+                let allH4Element = document.querySelectorAll("h4");
+                let textArr=[]
+                    // this for loop will create array of all the questions  
+                for(let i=0;i<allH4Element.length;i++){
+                    let myQuestion = allH4Element[i].innerText.split("\n")[0];
+                    textArr.push(myQuestion);
+                }
 
+                // we will find the index in the textArr of the question then we click on that particular question
+                let idx=textArr.indexOf(questionName);
+                console.log(idx);
+                allH4Element[idx].click();
+
+            }
+            let pageClickedPromise=gtab.evaluate(browserConsoleRunFn , questionName);
+            return pageClickedPromise;
+            // read code 
+            // then copy 
+            // then paste 
+            // them submit the code  
+            })
+            .then(function(){
+                resolve();
+            })
+            
     })
 }
 
 // function that is waiting for selector to display and applying the click on that selector
-function waitAndClick(selector){
-    return new Promise(function(resolve,reject){
-        let selectorWaitPromises=gtab.waitForSelector(selector);
-        selectorWaitPromises.then(function(){
-            let clickPromise=gtab.click(selector);
-            return clickPromise;
-        })
-        selectorWaitPromises.then(function(){
-            resolve();
-        })
-        selectorWaitPromises.then(function(){
-            reject();
-        })
+function waitAndClick(selector) {
+    return new Promise(function (resolve, reject) {
+        let selectorWaitPromise = gtab.waitForSelector(selector,
+            { visible: true });
+        selectorWaitPromise
+            .then(function () {
+                let selectorClickPromise = gtab.click(selector);
+                return selectorClickPromise;
+            }).then(function () {
+                resolve();
+            }).catch(function (err) {
+                reject(err);
+            })
     })
 }

@@ -2,7 +2,7 @@ module.exports={
     codes: [
     {
         qName:"Sales by Match",
-        code:`#include <bits/stdc++.h>
+        soln:`#include <bits/stdc++.h>
         using namespace std;
         
         
