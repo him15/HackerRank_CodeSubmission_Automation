@@ -1,13 +1,13 @@
 let puppeteer=require("puppeteer");
 let {email,password}=require("../secrets");
-
+let {codes}=require("./code");
 console.log("before");
 let gtab; // global tab
 //open the browser
 let browserPromise=puppeteer.launch({
-    headless:false,
+    headless:false, // it is to show in the screen 
     defaultViewport:null,
-    args:["--incognito","--start-maximized"]
+    args:["--start-maximized"]
 
 })
 
@@ -18,9 +18,11 @@ browserPromise.then(function(browserinstance){
     let loginPageWillbeOpenedPromise=newTab.goto("https://www.hackerrank.com/auth/login?h_l=body_middle_left_button&h_r=login");
     gtab=newTab;
     return loginPageWillbeOpenedPromise;
+  // email typing  
 }).then(function(){
     let emailWillBeTypedPromise=gtab.type("#input-1",email,{delay : 200});
     return emailWillBeTypedPromise;
+    // password typing
 }).then(function(){
     let passwordWillBeTypedPromise=gtab.type("#input-2" , password, {delay:200});
     return passwordWillBeTypedPromise;
@@ -47,17 +49,28 @@ browserPromise.then(function(browserinstance){
     let warmupClick=waitAndClick("a[data-attr1='warmup']");
     return warmupClick;
 
-}) // Reach to the Question
+}) // find the url of the page
 .then(function(){
-    let questionClick=waitAndClick(".ui-btn.ui-btn-normal.primary-cta.ui-btn-primary.ui-btn-styled");
-    return questionClick;
+    return gtab.url();
 
-}).catch(function(err){
+}).then(function(url){
+
+})
+
+.catch(function(err){
     console.log("Error AAYA Re :- ",err);
 })
 
 
-// function that is waiting for selector and applying the click on that selector
+
+
+function questionSolver(modulePageUrl , code , questionName){
+    return new Promise(function (resolve , reject ){
+
+    })
+}
+
+// function that is waiting for selector to display and applying the click on that selector
 function waitAndClick(selector){
     return new Promise(function(resolve,reject){
         let selectorWaitPromises=gtab.waitForSelector(selector);
