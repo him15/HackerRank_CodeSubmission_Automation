@@ -70,9 +70,10 @@ function questionSolver(modulePageUrl , code , questionName){
             // visit the page
             let reachedPageUrlPromise = gtab.goto(modulePageUrl);
             
-            reachedPageUrlPromise.then(function(){
+            reachedPageUrlPromise
+            .then(function(){
                 // question name -> appear -> visit
-            // page h4 -> matching h4 -> click
+                // page h4 -> matching h4 -> click
             function browserConsoleRunFn(questionName){ // this function will run on the browser console with the help of Evaluate method
                 let allH4Element = document.querySelectorAll("h4");
                 let textArr=[]
@@ -96,7 +97,54 @@ function questionSolver(modulePageUrl , code , questionName){
             // them submit the code  
             })
             .then(function(){
+                // now click on CheckBox -> to write the code
+                let inputWillBeClickedPromise=waitAndClick(".custom-checkbox.inline");
+                return inputWillBeClickedPromise;
+            })
+            .then(function(){
+                // type the code in text area
+                let codeWillBeTypedPromise=gtab.type(".custominput",code);
+                return codeWillBeTypedPromise;
+            })
+            .then(function(){
+                let controlBtnPressedPromise=gtab.keyboard.down("Control");
+                return controlBtnPressedPromise;
+            })
+            .then(function(){
+                // select all
+                let aIsPressedPromise=gtab.keyboard.press("a");
+                return aIsPressedPromise;
+            })
+            .then(function(){
+                // ctrl+x -> cut
+                let xIsPressedPromise=gtab.keyboard.press("x");
+                return xIsPressedPromise;
+            })
+            .then(function(){
+                // press to the console-> then ctrl A -> ctrl v
+                let clickToEditorPromise=waitAndClick(".monaco-editor.no-user-select.vs");
+                return clickToEditorPromise;
+            })
+            .then(function(){
+                // press ctrl A in the Editor
+                let selectAllCodePromise=gtab.keyboard.press("a");
+                return selectAllCodePromise;
+            })
+            .then(function(){
+                // paste the selected code to Editor
+                let vIsPressedPromise=gtab.keyboard.press("v");
+                return vIsPressedPromise;
+            })
+            .then(function(){
+                // click -> submit
+                let submitBtnPressedPromise=waitAndClick(".pull-right.btn.btn-primary.hr-monaco-submit");
+                return submitBtnPressedPromise; 
+            })
+            .then(function(){
                 resolve();
+            })
+            .catch(function(err){
+                reject();
             })
             
     })
