@@ -54,7 +54,16 @@ browserPromise.then(function(browserinstance){
 }).then(function(url){
     console.log(url);
     let questionObj=codes[0];
-    questionSolver(url , questionObj.soln , questionObj.qName );
+    let fqsp=questionSolver(url , questionObj.soln , questionObj.qName );
+
+    for(let i=1;i<codes.length;i++){
+        fqsp=fqsp.then(function(){
+            return questionSolver(url , codes[i].soln , codes[i].qName);
+        })
+    }
+    return fqsp;
+}).then(function(){
+    console.log("code submitted ! ");
 })
 
 .catch(function(err){
@@ -98,7 +107,7 @@ function questionSolver(modulePageUrl , code , questionName){
             })
             .then(function(){
                 // now click on CheckBox -> to write the code
-                let inputWillBeClickedPromise=waitAndClick(".custom-checkbox.inline");
+                let inputWillBeClickedPromise=waitAndClick(".checkBoxWrapper");
                 return inputWillBeClickedPromise;
             })
             .then(function(){
@@ -137,7 +146,7 @@ function questionSolver(modulePageUrl , code , questionName){
             })
             .then(function(){
                 // click -> submit
-                let submitBtnPressedPromise=waitAndClick(".pull-right.btn.btn-primary.hr-monaco-submit");
+                let submitBtnPressedPromise=waitAndClick(".ui-btn.ui-btn-normal.ui-btn-primary.pull-right.hr-monaco-submit.ui-btn-styled");
                 return submitBtnPressedPromise; 
             })
             .then(function(){
